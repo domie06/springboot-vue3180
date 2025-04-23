@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.GongkaikeDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.putonglaoshi_id as putonglaoshiId
+        ,a.gongkaike_uuid_number as gongkaikeUuidNumber
+        ,a.gongkaike_name as gongkaikeName
+        ,a.gongkaike_types as gongkaikeTypes
+        ,a.banji_types as banjiTypes
+        ,a.gongkaike_content as gongkaikeContent
+        ,a.gongkaike_shichang as gongkaikeShichang
+        ,a.gongkaike_address as gongkaikeAddress
+        ,a.gongkaike_number as gongkaikeNumber
+        ,a.gongkaike_pingfen as gongkaikePingfen
+        ,a.kaike_time as kaikeTime
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.GongkaikeView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,putonglaoshi.putonglaoshi_uuid_number as putonglaoshiUuidNumber
+        ,putonglaoshi.putonglaoshi_name as putonglaoshiName
+        ,putonglaoshi.putonglaoshi_phone as putonglaoshiPhone
+        ,putonglaoshi.putonglaoshi_id_number as putonglaoshiIdNumber
+        ,putonglaoshi.putonglaoshi_photo as putonglaoshiPhoto
+        ,putonglaoshi.kemu_types as kemuTypes
+        ,putonglaoshi.laoshi_pingfen as laoshiPingfen
+        ,putonglaoshi.putonglaoshi_email as putonglaoshiEmail
+
+        FROM gongkaike  a
+        left JOIN putonglaoshi putonglaoshi ON a.putonglaoshi_id = putonglaoshi.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.putonglaoshiId != null and params.putonglaoshiId != ''">
+                and (
+                    a.putonglaoshi_id = #{params.putonglaoshiId}
+                )
+            </if>
+            <if test=" params.gongkaikeUuidNumber != '' and params.gongkaikeUuidNumber != null and params.gongkaikeUuidNumber != 'null' ">
+                and a.gongkaike_uuid_number like CONCAT('%',#{params.gongkaikeUuidNumber},'%')
+            </if>
+            <if test=" params.gongkaikeName != '' and params.gongkaikeName != null and params.gongkaikeName != 'null' ">
+                and a.gongkaike_name like CONCAT('%',#{params.gongkaikeName},'%')
+            </if>
+            <if test="params.gongkaikeTypes != null and params.gongkaikeTypes != ''">
+                and a.gongkaike_types = #{params.gongkaikeTypes}
+            </if>
+            <if test="params.banjiTypes != null and params.banjiTypes != ''">
+                and a.banji_types = #{params.banjiTypes}
+            </if>
+            <if test=" params.gongkaikeContent != '' and params.gongkaikeContent != null and params.gongkaikeContent != 'null' ">
+                and a.gongkaike_content like CONCAT('%',#{params.gongkaikeContent},'%')
+            </if>
+            <if test=" params.gongkaikeShichang != '' and params.gongkaikeShichang != null and params.gongkaikeShichang != 'null' ">
+                and a.gongkaike_shichang like CONCAT('%',#{params.gongkaikeShichang},'%')
+            </if>
+            <if test=" params.gongkaikeAddress != '' and params.gongkaikeAddress != null and params.gongkaikeAddress != 'null' ">
+                and a.gongkaike_address like CONCAT('%',#{params.gongkaikeAddress},'%')
+            </if>
+            <if test="params.gongkaikeNumberStart != null and params.gongkaikeNumberStart != ''">
+                <![CDATA[  and a.gongkaike_number >= #{params.gongkaikeNumberStart}   ]]>
+            </if>
+            <if test="params.gongkaikeNumberEnd != null and params.gongkaikeNumberEnd != ''">
+                <![CDATA[  and a.gongkaike_number <= #{params.gongkaikeNumberEnd}   ]]>
+            </if>
+             <if test="params.gongkaikeNumber != null and params.gongkaikeNumber != ''">
+                and a.gongkaike_number = #{params.gongkaikeNumber}
+             </if>
+            <if test="params.gongkaikePingfenStart != null and params.gongkaikePingfenStart != ''">
+                <![CDATA[  and a.gongkaike_pingfen >= #{params.gongkaikePingfenStart}   ]]>
+            </if>
+            <if test="params.gongkaikePingfenEnd != null and params.gongkaikePingfenEnd != ''">
+                <![CDATA[  and a.gongkaike_pingfen <= #{params.gongkaikePingfenEnd}   ]]>
+            </if>
+             <if test="params.gongkaikePingfen != null and params.gongkaikePingfen != ''">
+                and a.gongkaike_pingfen = #{params.gongkaikePingfen}
+             </if>
+            <if test=" params.kaikeTimeStart != '' and params.kaikeTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.kaike_time) >= UNIX_TIMESTAMP(#{params.kaikeTimeStart}) ]]>
+            </if>
+            <if test=" params.kaikeTimeEnd != '' and params.kaikeTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.kaike_time) <= UNIX_TIMESTAMP(#{params.kaikeTimeEnd}) ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断普通老师的id不为空 -->
+            <if test=" params.putonglaoshiIdNotNull != '' and params.putonglaoshiIdNotNull != null and params.putonglaoshiIdNotNull != 'null' ">
+                and a.putonglaoshi_id IS NOT NULL
+            </if>
+            <if test=" params.putonglaoshiUuidNumber != '' and params.putonglaoshiUuidNumber != null and params.putonglaoshiUuidNumber != 'null' ">
+                and putonglaoshi.putonglaoshi_uuid_number like CONCAT('%',#{params.putonglaoshiUuidNumber},'%')
+            </if>
+            <if test=" params.putonglaoshiName != '' and params.putonglaoshiName != null and params.putonglaoshiName != 'null' ">
+                and putonglaoshi.putonglaoshi_name like CONCAT('%',#{params.putonglaoshiName},'%')
+            </if>
+            <if test=" params.putonglaoshiPhone != '' and params.putonglaoshiPhone != null and params.putonglaoshiPhone != 'null' ">
+                and putonglaoshi.putonglaoshi_phone like CONCAT('%',#{params.putonglaoshiPhone},'%')
+            </if>
+            <if test=" params.putonglaoshiIdNumber != '' and params.putonglaoshiIdNumber != null and params.putonglaoshiIdNumber != 'null' ">
+                and putonglaoshi.putonglaoshi_id_number like CONCAT('%',#{params.putonglaoshiIdNumber},'%')
+            </if>
+            <if test="params.kemuTypes != null  and params.kemuTypes != ''">
+                and putonglaoshi.kemu_types = #{params.kemuTypes}
+            </if>
+
+            <if test="params.laoshiPingfenStart != null  and params.laoshiPingfenStart != '' ">
+                <![CDATA[  and putonglaoshi.laoshi_pingfen >= #{params.laoshiPingfenStart}   ]]>
+            </if>
+            <if test="params.laoshiPingfenEnd != null  and params.laoshiPingfenEnd != '' ">
+                <![CDATA[  and putonglaoshi.laoshi_pingfen <= #{params.laoshiPingfenEnd}   ]]>
+            </if>
+            <if test="params.laoshiPingfen != null  and params.laoshiPingfen != '' ">
+                and putonglaoshi.laoshi_pingfen = #{params.laoshiPingfen}
+            </if>
+            <if test=" params.putonglaoshiEmail != '' and params.putonglaoshiEmail != null and params.putonglaoshiEmail != 'null' ">
+                and putonglaoshi.putonglaoshi_email like CONCAT('%',#{params.putonglaoshiEmail},'%')
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

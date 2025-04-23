@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.PutonglaoshiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.putonglaoshi_uuid_number as putonglaoshiUuidNumber
+        ,a.putonglaoshi_name as putonglaoshiName
+        ,a.putonglaoshi_phone as putonglaoshiPhone
+        ,a.putonglaoshi_id_number as putonglaoshiIdNumber
+        ,a.putonglaoshi_photo as putonglaoshiPhoto
+        ,a.sex_types as sexTypes
+        ,a.kemu_types as kemuTypes
+        ,a.laoshi_pingfen as laoshiPingfen
+        ,a.putonglaoshi_email as putonglaoshiEmail
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.PutonglaoshiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM putonglaoshi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.putonglaoshiUuidNumber != '' and params.putonglaoshiUuidNumber != null and params.putonglaoshiUuidNumber != 'null' ">
+                and a.putonglaoshi_uuid_number like CONCAT('%',#{params.putonglaoshiUuidNumber},'%')
+            </if>
+            <if test=" params.putonglaoshiName != '' and params.putonglaoshiName != null and params.putonglaoshiName != 'null' ">
+                and a.putonglaoshi_name like CONCAT('%',#{params.putonglaoshiName},'%')
+            </if>
+            <if test=" params.putonglaoshiPhone != '' and params.putonglaoshiPhone != null and params.putonglaoshiPhone != 'null' ">
+                and a.putonglaoshi_phone like CONCAT('%',#{params.putonglaoshiPhone},'%')
+            </if>
+            <if test=" params.putonglaoshiIdNumber != '' and params.putonglaoshiIdNumber != null and params.putonglaoshiIdNumber != 'null' ">
+                and a.putonglaoshi_id_number like CONCAT('%',#{params.putonglaoshiIdNumber},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test="params.kemuTypes != null and params.kemuTypes != ''">
+                and a.kemu_types = #{params.kemuTypes}
+            </if>
+            <if test="params.laoshiPingfenStart != null and params.laoshiPingfenStart != ''">
+                <![CDATA[  and a.laoshi_pingfen >= #{params.laoshiPingfenStart}   ]]>
+            </if>
+            <if test="params.laoshiPingfenEnd != null and params.laoshiPingfenEnd != ''">
+                <![CDATA[  and a.laoshi_pingfen <= #{params.laoshiPingfenEnd}   ]]>
+            </if>
+             <if test="params.laoshiPingfen != null and params.laoshiPingfen != ''">
+                and a.laoshi_pingfen = #{params.laoshiPingfen}
+             </if>
+            <if test=" params.putonglaoshiEmail != '' and params.putonglaoshiEmail != null and params.putonglaoshiEmail != 'null' ">
+                and a.putonglaoshi_email like CONCAT('%',#{params.putonglaoshiEmail},'%')
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
